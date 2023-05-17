@@ -50,7 +50,7 @@ exports.deleteBook = (req, res, next) => {
     .then((book) => {
       // Check if the user making the request is authorized to delete the book
       if (book.userId !== req.auth.userId) {
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(403).json({ error: "403: unauthorized request" });
       }
 
       // Delete the book
@@ -70,7 +70,7 @@ exports.modifyBook = (req, res, next) => {
     .then((book) => {
       // Check if the user making the request is authorized to modify the book
       if (book.userId !== req.auth.userId) {
-        return res.status(401).json({ error: "Unauthorized" });
+        return res.status(403).json({ error: "403: nauthorized request" });
       }
 
       // Récupère par défaut l'imageUrl déjà existant. Si une nouvelle image est ajoutée on le défini sur celle ci.
