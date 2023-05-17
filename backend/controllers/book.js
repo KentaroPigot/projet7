@@ -62,6 +62,10 @@ exports.deleteBook = (req, res, next) => {
 };
 
 exports.modifyBook = (req, res, next) => {
+  // Récupère le book et supprime le useId fourni par le client
+  const bookObject = JSON.parse(req.body.book);
+  delete bookObject.userId;
+
   Book.findById(req.params.id)
     .then((book) => {
       // Check if the user making the request is authorized to modify the book
@@ -69,12 +73,25 @@ exports.modifyBook = (req, res, next) => {
         return res.status(401).json({ error: "Unauthorized" });
       }
 
+      // Récupère par défaut l'imageUrl déjà existant. Si une nouvelle image est ajoutée on le défini sur celle ci.
+      let imageUrl = book.imageUrl;
+      if (req.file) {
+        imageUrl = `${req.protocol}://${req.get("host")}/${req.file.path}`;
+      }
+
       // Update the book
       Book.updateOne(
         { _id: req.params.id },
-        { ...req.body, _id: req.params.id }
+        {
+          ...bookObject,
+          userId: req.auth.userId,
+          imageUrl,
+        }
       )
-        .then(() => res.status(200).json({ message: "Objet modifié" }))
+        .then((book) => {
+          console.log(book);
+          res.status(200).json({ message: "Objet modifié" });
+        })
         .catch((error) => res.status(400).json({ error }));
     })
     .catch((error) => res.status(500).json({ error }));

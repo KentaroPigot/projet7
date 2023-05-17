@@ -16,7 +16,7 @@ router
 router
   .route("/:id")
   .get(bookCtrl.getOneBook)
-  .put(auth, bookCtrl.modifyBook)
+  .put(auth, multer, compressImage, bookCtrl.modifyBook)
   .delete(auth, bookCtrl.deleteBook);
 
 router.post("/:id/rating", auth, bookCtrl.addRating);
