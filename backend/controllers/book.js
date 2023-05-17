@@ -1,4 +1,6 @@
 const Book = require("../models/Book");
+const fs = require("fs");
+const path = require("path");
 
 exports.getAllBooks = (req, res, next) => {
   Book.find()
@@ -52,10 +54,24 @@ exports.deleteBook = (req, res, next) => {
       if (book.userId !== req.auth.userId) {
         return res.status(403).json({ error: "403: unauthorized request" });
       }
+      console.log(book.imageUrl);
 
       // Delete the book
       Book.deleteOne({ _id: req.params.id })
-        .then(() => res.status(200).json({ message: "Objet supprimé" }))
+        .then((deleteInfos) => {
+          console.log(book.imageUrl);
+
+          const imagePath = book.imageUrl.replace("http://localhost:4000/", "");
+          const localImagePath = path.join(__dirname, "..", imagePath);
+
+          fs.unlink(localImagePath, (err) => {
+            if (err) {
+              console.error(err);
+            }
+          });
+
+          res.status(200).json({ message: "Objet supprimé" });
+        })
         .catch((error) => res.status(400).json({ error }));
     })
     .catch((error) => res.status(500).json({ error }));
